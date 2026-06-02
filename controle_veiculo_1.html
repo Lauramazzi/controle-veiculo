@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Veículo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde:#1D9E75;--verde-escuro:#0F6E56;--verde-claro:#EAF3DE;
+    --laranja:#D85A30;--laranja-claro:#FAECE7;
+    --azul:#185FA5;--azul-claro:#E6F1FB;
+    --cinza-bg:#F5F5F2;--cinza-borda:#E0DED6;
+    --texto:#1a1a18;--texto-sec:#6b6b68;
+    --radius:12px;--radius-sm:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cinza-bg);color:var(--texto);min-height:100vh;}
+  .header{background:var(--verde);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;}
+  .header-icon{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .header h1{color:white;font-size:16px;font-weight:600;}
+  .header p{color:rgba(255,255,255,0.75);font-size:12px;}
+  .tabs{display:flex;background:white;border-bottom:1px solid var(--cinza-borda);overflow-x:auto;}
+  .tab{flex:1;padding:11px 6px;font-size:11px;font-weight:500;color:var(--texto-sec);text-align:center;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif;}
+  .tab.active{color:var(--verde);border-bottom-color:var(--verde);}
+  .panel{display:none;padding:16px;max-width:500px;margin:0 auto;}
+  .panel.active{display:block;}
+  .card{background:white;border-radius:var(--radius);border:1px solid var(--cinza-borda);padding:16px;margin-bottom:12px;}
+  .card-title{font-size:13px;font-weight:600;margin-bottom:12px;}
+  .driver-btn{display:flex;align-items:center;gap:14px;padding:16px;background:white;border:1px solid var(--cinza-borda);border-radius:var(--radius);width:100%;cursor:pointer;margin-bottom:10px;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+  .driver-btn:hover{border-color:var(--verde);background:var(--verde-claro);}
+  .avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
+  .av-d{background:var(--azul-claro);color:var(--azul);}
+  .av-a{background:var(--verde-claro);color:var(--verde-escuro);}
+  label{display:block;font-size:12px;color:var(--texto-sec);margin-bottom:5px;margin-top:12px;}
+  select,textarea{width:100%;padding:10px 12px;border:1px solid var(--cinza-borda);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--texto);background:white;}
+  select:focus,textarea:focus{outline:none;border-color:var(--verde);}
+  textarea{resize:none;}
+  .tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
+  .tipo-btn{padding:12px;border:1px solid var(--cinza-borda);border-radius:var(--radius-sm);text-align:center;cursor:pointer;transition:all 0.15s;font-size:13px;font-weight:500;background:white;font-family:'DM Sans',sans-serif;}
+  .tipo-btn.sel-saida{border-color:var(--laranja);background:var(--laranja-claro);color:var(--laranja);}
+  .tipo-btn.sel-retorno{border-color:var(--verde);background:var(--verde-claro);color:var(--verde-escuro);}
+  .btn{padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--cinza-borda);background:white;color:var(--texto);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .btn-primary{background:var(--verde);color:white;border-color:var(--verde-escuro);}
+  .btn-primary:hover{background:var(--verde-escuro);}
+  .btn-primary:disabled{background:#aaa;border-color:#aaa;cursor:not-allowed;}
+  .btn-sm{padding:7px 14px;font-size:12px;}
+  .btn-row{display:flex;gap:8px;margin-top:16px;}
+  .btn-row .btn-primary{flex:1;}
+  .success-screen{text-align:center;padding:24px 16px;}
+  .success-icon{font-size:56px;margin-bottom:12px;}
+  .success-title{font-size:18px;font-weight:600;margin-bottom:4px;}
+  .success-sub{font-size:13px;color:var(--texto-sec);margin-bottom:20px;}
+  .confirm-box{background:var(--cinza-bg);border-radius:var(--radius-sm);padding:12px 16px;text-align:left;margin-bottom:16px;}
+  .confirm-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--cinza-borda);font-size:13px;}
+  .confirm-row:last-child{border:none;}
+  .confirm-row span:first-child{color:var(--texto-sec);}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-saida{background:var(--laranja-claro);color:var(--laranja);}
+  .badge-retorno{background:var(--verde-claro);color:var(--verde-escuro);}
+  .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .metric{background:white;border:1px solid var(--cinza-borda);border-radius:var(--radius);padding:14px;text-align:center;}
+  .metric-num{font-size:26px;font-weight:600;color:var(--verde);}
+  .metric-label{font-size:11px;color:var(--texto-sec);margin-top:2px;}
+  .log-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--cinza-borda);}
+  .log-item:last-child{border:none;}
+  .log-nome{font-size:13px;font-weight:500;}
+  .log-ativ{font-size:12px;color:var(--texto-sec);}
+  .qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .qr-card{background:white;border:1px solid var(--cinza-borda);border-radius:var(--radius);padding:16px;text-align:center;}
+  .qr-img-wrap{background:white;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--cinza-borda);display:inline-block;margin-bottom:10px;}
+  .qr-img-wrap img{display:block;width:130px;height:130px;}
+  .info-box{background:var(--azul-claro);border:1px solid #B5D4F4;border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:var(--azul);margin-bottom:12px;line-height:1.5;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a18;color:white;padding:10px 20px;border-radius:20px;font-size:13px;transition:transform 0.3s;z-index:999;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .config-input{width:100%;padding:10px 12px;border:1px solid var(--cinza-borda);border-radius:var(--radius-sm);font-size:12px;font-family:'DM Mono',monospace;color:var(--texto);background:white;margin-bottom:4px;}
+  .config-input:focus{outline:none;border-color:var(--verde);}
+  /* RELATÓRIO */
+  .periodo-tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .periodo-tab{flex:1;padding:9px;border:1px solid var(--cinza-borda);border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-align:center;cursor:pointer;background:white;font-family:'DM Sans',sans-serif;color:var(--texto-sec);transition:all 0.15s;}
+  .periodo-tab.active{background:var(--verde);color:white;border-color:var(--verde-escuro);}
+  .rel-section{margin-bottom:16px;}
+  .rel-section-title{font-size:12px;font-weight:600;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;}
+  .motorista-card{background:var(--cinza-bg);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;}
+  .motorista-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .avatar-sm{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+  .stat-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--cinza-borda);}
+  .stat-row:last-child{border:none;}
+  .stat-row span:first-child{color:var(--texto-sec);}
+  .stat-row strong{color:var(--texto);}
+  .ativ-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--cinza-borda);font-size:13px;}
+  .ativ-item:last-child{border:none;}
+  .ativ-bar-wrap{width:80px;height:6px;background:var(--cinza-borda);border-radius:3px;margin-top:2px;}
+  .ativ-bar{height:6px;background:var(--verde);border-radius:3px;transition:width 0.4s;}
+  .pico-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .pico-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;}
+  .semana-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .semana-nav span{font-size:13px;font-weight:500;}
+  .nav-btn{background:none;border:1px solid var(--cinza-borda);border-radius:var(--radius-sm);padding:6px 12px;cursor:pointer;font-size:14px;}
+  .empty-state{text-align:center;padding:32px 16px;color:var(--texto-sec);font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🚗</div>
+  <div><h1>Controle de Veículo</h1><p id="header-data"></p></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('registro',this)">📋 Registro</button>
+  <button class="tab" onclick="showTab('relatorio',this)">📈 Relatório</button>
+  <button class="tab" onclick="showTab('qrcode',this)">📱 QR Code</button>
+  <button class="tab" onclick="showTab('config',this)">⚙️ Config</button>
+</div>
+
+<!-- REGISTRO -->
+<div id="panel-registro" class="panel active">
+  <div id="step-driver">
+    <div class="card">
+      <p style="font-size:13px;color:var(--texto-sec);margin-bottom:12px;">Quem está usando o veículo?</p>
+      <button class="driver-btn" onclick="selectDriver('Djack Moura','DM','av-d')">
+        <div class="avatar av-d">DM</div>
+        <div><div style="font-size:15px;font-weight:500;text-align:left;">Djack Moura</div><div style="font-size:12px;color:var(--texto-sec);">Motorista</div></div>
+      </button>
+      <button class="driver-btn" onclick="selectDriver('Alan','AL','av-a')">
+        <div class="avatar av-a">AL</div>
+        <div><div style="font-size:15px;font-weight:500;text-align:left;">Alan</div><div style="font-size:12px;color:var(--texto-sec);">Motorista</div></div>
+      </button>
+    </div>
+  </div>
+  <div id="step-form" style="display:none;">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div class="avatar" id="form-avatar"></div>
+        <div><div style="font-size:14px;font-weight:600;" id="form-nome"></div><div style="font-size:12px;color:var(--texto-sec);" id="form-hora"></div></div>
+      </div>
+      <label>Tipo de registro</label>
+      <div class="tipo-grid">
+        <button class="tipo-btn" id="btn-saida" onclick="selectTipo('saida')">🚗 Saída</button>
+        <button class="tipo-btn" id="btn-retorno" onclick="selectTipo('retorno')">🏁 Retorno</button>
+      </div>
+      <label>Atividade</label>
+      <select id="atividade">
+        <option value="Entrega: Marketplaces">Entrega: Marketplaces</option>
+        <option value="Coleta: Fornecedores">Coleta: Fornecedores</option>
+        <option value="Entrega: Cliente">Entrega: Cliente</option>
+        <option value="Abastecimento">Abastecimento</option>
+        <option value="Manutenção">Manutenção</option>
+        <option value="Outro">Outro</option>
+      </select>
+      <label>Observações (opcional)</label>
+      <textarea id="obs" rows="2" placeholder="Ex: cliente ausente, desvio de rota..."></textarea>
+      <div class="btn-row">
+        <button class="btn" onclick="backToDrivers()">← Voltar</button>
+        <button class="btn btn-primary" id="btn-confirmar" onclick="registrar()" disabled>Confirmar ✓</button>
+      </div>
+    </div>
+  </div>
+  <div id="step-success" style="display:none;">
+    <div class="card success-screen">
+      <div class="success-icon" id="suc-icon">✅</div>
+      <div class="success-title" id="suc-title"></div>
+      <div class="success-sub" id="suc-sub"></div>
+      <div class="confirm-box">
+        <div class="confirm-row"><span>Motorista</span><strong id="suc-driver"></strong></div>
+        <div class="confirm-row"><span>Horário</span><span id="suc-hora"></span></div>
+        <div class="confirm-row"><span>Atividade</span><span id="suc-ativ"></span></div>
+        <div class="confirm-row"><span>Status</span><span class="badge" id="suc-badge"></span></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="novoRegistro()">Novo registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- RELATÓRIO -->
+<div id="panel-relatorio" class="panel">
+  <div class="periodo-tabs">
+    <button class="periodo-tab active" onclick="setPeriodo('semana',this)">Esta semana</button>
+    <button class="periodo-tab" onclick="setPeriodo('mes',this)">Este mês</button>
+    <button class="periodo-tab" onclick="setPeriodo('tudo',this)">Tudo</button>
+  </div>
+  <div id="rel-content"></div>
+</div>
+
+<!-- QR CODE -->
+<div id="panel-qrcode" class="panel">
+  <div class="info-box">💡 Imprima e cole no veículo. O motorista escaneia e já abre o app com o nome dele selecionado.</div>
+  <div class="qr-grid">
+    <div class="qr-card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Djack Moura</div>
+      <div class="qr-img-wrap"><img src="data:image/png;base64,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" alt="QR Djack"></div>
+      <div style="font-size:11px;color:var(--texto-sec);margin-bottom:10px;">Saída / Retorno</div>
+      <button class="btn btn-sm" style="width:100%;" onclick="downloadQR('djack')">⬇ Baixar</button>
+    </div>
+    <div class="qr-card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Alan</div>
+      <div class="qr-img-wrap"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQIAAAECCAIAAACaLU4HAAAFkklEQVR4nO3dQW7dRhBF0acgmwi8/6UZWcbPPJx0ClXVlHLO0JD4KdkXDReaza/P5xP4f/vj9g3AfTIAGYAMIDKAyAAiA4gMIDKAyAAiA4gMIDKAyAAiA4gMIDKAJH/Wvu3Xr7967+M/+f3773/9yeb9PD/9xPMOT65T+7k27/DkOptq92w1ABmADCAygMgAUp4UPdX+h36ia/JQmy/V5jlzU6CnuTvsus77/21YDUAGIAOIDCAygDROip4298OcXKd2P13TpJP7qc18Tq5T+/S53UF3/208WQ1ABiADiAwgMoCMToo2zc1h5p7Ampt7PG3uX/qOrAYgA5ABRAYQGUB+zKTo/U+odV25Nqvp+q6uSdrbWA1ABiADiAwgMoCMToo2ZwgnM42uyUztypszltqTZZsnDr1tvmQ1ABmADCAygMgA0jgpuvvGq67ZSNf8ZPN+3vY1T3f/bZywGoAMQAYQGUBkAEm+Pp/P7XsYMXdO0dzuoM2zlX7qc2Q1VgOQAcgAIgOIDCDlSdFP3Vsyd371yWfdPQd789TruTev1X4/VgOQAcgAIgOIDCCNk6Knud0433EXzeY0qXadzb+vE5u7uawGIAOQAUQGEBlARp8+mzsb58Td86I33d2p9R3P5X6yGoAMQAYQGUBkACmfaH3yP/S592R1zZc23x3/tn1Qc2cr3f2sGqsByABkAJEBRAaQxj1Fd8/qccr0hK6/i9p3bf7GrAYgA5ABRAYQGUDKe4rmdJ2M/f69Lnffzja3P2fzbHPnFEEbGYAMQAYQGUBGnz5727yi67PmZlBdO2Tmfva7u7lO2FMERTIAGYAMIDKANO4p2jxR5+50omvnz93ntu6+923uZ6+xGoAMQAYQGUBkAGmcFNUmGCff1fWs2Xc0d3L42/YvbZ5J/mQ1ABmADCAygMgAMrqnqPY1mydRb54vdHKduU+v/eybzxjePc3bagAyABlAZACRAWT53Wdzu18297F0XXnz1Kb3u7szymoAMgAZQGQAkQFk+d1nXXtUTtSea5t7M/vcTzp3utHm3MyeIrhMBiADkAFEBpDynqKuGUuXuQnPyXVq3jY7ql1njkkRrJIByABkAJEBZPndZ297i1ntu7r258zd4dPm83pdU7vNXUZWA5AByAAiA4gMIKN7iuZ2yPyMU4DuzsS69hTdnQs5pwjayABkADKAyADSOCl66prnzM005mYsT3PPrJ181t2pVJe5aaTVAGQAMoDIACIDyAvffbY5i9jcd7R56s7mXqCu76oxKYI2MgAZgAwgMoB8ixOt3/as2fuft/qOO6w2J2lPVgOQAcgAIgOIDCCjJ1qf2Jy6vP+coq69QHNTl7u/1a7fz5PVAGQAMoDIACIDSOOkaO4Mma7ZyN0zkU7MzWHetofnbXM8qwHIAGQAkQFEBpDGSVHN5jnPNXNzobnZyN2Tw0+8bX+X1QBkADKAyAAiA0h5UjS3z6emNveYO+Fnc8/M3f1Cc+cUbf5cVgOQAcgAIgOIDCDlSdHb3pZeszm9qemaSj2/5v3vI9t8z5rVAGQAMoDIACIDyOg5RV02z+qZ2x20+Y6w7/g2tBNzu4ysBiADkAFEBhAZQEbPKXrbnOFp8/mmzeetap9V+/va3F029xuzGoAMQAYQGUBkALl+ovXbbO7h6ZrMbD6ldXLlp647nJtKWQ1ABiADiAwgMoD8mEnR5lRh7uygp675ydvOO7r7JOCT1QBkADKAyAAiA8jopGjzObITm2+Br+na0XSiax/U3Eys9jU1VgOQAcgAIgOIDCCNk6K3zVhqXzP3JNfmida168xN0u7Ol05YDUAGIAOIDCAygCRfn8/n9j3AZVYDkAHIACIDiAwgMoDIACIDiAwgMoDIACIDiAwgMoDIACIDiAwgyT+Bj8traMnOwgAAAABJRU5ErkJggg==" alt="QR Alan"></div>
+      <div style="font-size:11px;color:var(--texto-sec);margin-bottom:10px;">Saída / Retorno</div>
+      <button class="btn btn-sm" style="width:100%;" onclick="downloadQR('alan')">⬇ Baixar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div id="panel-config" class="panel">
+  <div class="card">
+    <p class="card-title">🔗 URL do Google Apps Script</p>
+    <input class="config-input" type="text" id="script-url" placeholder="https://script.google.com/macros/s/.../exec">
+    <div id="config-status" style="font-size:11px;margin-top:4px;"></div>
+    <button class="btn btn-primary" style="margin-top:12px;width:100%;" onclick="salvarConfig()">Salvar e testar conexão</button>
+  </div>
+  <div class="card">
+    <p class="card-title">ℹ️ Como usar</p>
+    <div style="font-size:12px;color:var(--texto-sec);line-height:1.8;">
+      1. Cole a URL do Apps Script acima e salve<br>
+      2. Motoristas escaneiam o QR ao sair e retornar<br>
+      3. Registros vão direto para o Google Sheets<br>
+      4. Veja relatórios na aba 📈 Relatório
+    </div>
+  </div>
+  <button class="btn" style="width:100%;" onclick="window.open('https://docs.google.com/spreadsheets/d/1x4rKfY-E1K_Gnuka16ey-XlspylajBFtUapOauEBDLo/edit','_blank')">📊 Abrir planilha no Google Sheets</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var SCRIPT_URL = localStorage.getItem('veh_script_url') || '';
+var selectedDriver = '', selectedTipo = '';
+var localLogs = JSON.parse(localStorage.getItem('veh_logs') || '[]');
+var periodoAtual = 'semana';
+var QR_DJACK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQIAAAECCAIAAACaLU4HAAAFoUlEQVR4nO3dQY7cNhCG0X+CXMLw/Y9m+BjK3towhSqSPX5vGXiknrY/CClQ5NfzPIG/2z+nPwCcJwOQAcgAIgOIDCAygMgAIgOIDCAygMgAIgOIDCAygMgAIgNI8m/tx37+/NH7Of6XX79+//Ff3p9n5c/U7vW2cuWV66xcufZ5un6Lt67vuUvte/Y0ABmADCAygMgAUp4UvdX+D33F3BxmZcrRdfeu+cnKFKg2SXvbOW2r6fpWPQ1ABiADiAwgMoA0Torezk4VVu5+2yqj2sqormnJztVBt02cPA1ABiADiAwgMoCMTop2mlt3tHKvlVU9tet0vVXX9VPflacByABkAJEBRAaQbzMpWrFzN6EuZ3dk+numSZ4GIAOQAUQGEBlARidFt80Q5vaCrt1r5e4rV57bg2jufbTb/m14GoAMQAYQGUBkAGmcFJ098eqta6Iyd6+dk5m5371299t4GoAMQAYQGUBkAClPim5bE7Ji7rSv22Y+c/da8Yn/NjwNQAYgA4gMIDKAJF/P8xR+rGuNym277sxdp3bl+/cO2rlH08rda7+7pwHIAGQAkQFEBpDRNUW3nd4+95lrV57bE2lujrdy964r75yJeRqADEAGEBlAZAApT4p2vpe0812quR2H5t5rq+naB3vnled4GoAMQAYQGUBkANm8T9Hc+1+fuBqn5rbTx+ZOXlthTRG0kQHIAGQAkQFkdJ+irreHdr4DNbey5expaDt/rxVn3wR88zQAGYAMIDKAyABSXlP0dvYM+rNTqbn32lZ0vddWc9sOSDWeBiADkAFEBhAZQI6/fda1703Xn1m5+9w0aaeza8BW7Fzx5WkAMgAZQGQAkQGkcU3Riq41M3O6pkA7p0m3zaBqat+qfYqgjQxABiADiAwgo5OinftXz63hmXvXbOdP7TydbeUT1q4zx9MAZAAygMgAIgNI447WK27bL7rm7G7Mn3jlrnt13f3N0wBkADKAyAAiA8jomqK5s71W1sPUdO2b9Im61hStfBu3fWOeBiADkAFEBhAZQMprilbMzYXOrn6Zu87O9UJzZ7HV7r7yU2/WFEEbGYAMQAYQGUA272j9tvPk+q7VL7ed8H52h5+dd3f2GQySAcgAZACRAaRxTdH985OduyTVnF0ddNse4Dt5GoAMQAYQGUBkACmvKZp7l6prqjC349DOucdteyLNTZzOTpM8DUAGIAOIDCAygIyefTa3tmRuqrBzb6W5fYrOnly/8xvr4mkAMgAZQGQAkQHkQ/cpqu1KVPs8O9e61L6N22ZQcyu15v4uPA1ABiADiAwgMoA0Toq61vCsXHnn2WdzU6CuNTM73/tbuXvtXvYpgsNkADIAGUBkAClPinbukNy1h/Pcn3mbm97M7YC04uw8Z46nAcgAZACRAUQGkMazz1Z84l7QO88RO3v22Zz7V455GoAMQAYQGUBkAGk8+2zFzn1vvuuaohVn1x3N6fpW3zwNQAYgA4gMIDKAbF5TNGfutK+5s9h2vll222qluU9Y42kAMgAZQGQAkQFk85qiLjt3z+6ycwZVu06XuXnO3N+OpwHIAGQAkQFEBpDjZ5+tuH93o67T7Veu3HWdt65p0tlT8OxTBEUyABmADCAygDROit7Onrpeu9fOd8S6pkA1c++RfSJPA5AByAAiA4gMIKOTop26Jjy1HbZrdp6qdts8p2tv8y6eBiADkAFEBhAZQL7NpGjFzrPj507pum2a1DWjm/u7WOFpADIAGUBkAJEBZHRSdPb//d9q84qzK39qn6f2U7U/8zZ3zlrtXis8DUAGIAOIDCAygDROis6+33T29Paarn2K5lYrdc1zVu5VY0draCMDkAHIACIDSPL1PM/pzwCHeRqADEAGEBlAZACRAUQGEBlAZACRAUQGEBlAZACRAUQGEBlAZABJ/gO8zJT1AEmlGAAAAABJRU5ErkJggg==';
+var QR_ALAN  = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQIAAAECCAIAAACaLU4HAAAFkklEQVR4nO3dQW7dRhBF0acgmwi8/6UZWcbPPJx0ClXVlHLO0JD4KdkXDReaza/P5xP4f/vj9g3AfTIAGYAMIDKAyAAiA4gMIDKAyAAiA4gMIDKAyAAiA4gMIDKAJH/Wvu3Xr7967+M/+f3773/9yeb9PD/9xPMOT65T+7k27/DkOptq92w1ABmADCAygMgAUp4UPdX+h36ia/JQmy/V5jlzU6CnuTvsus77/21YDUAGIAOIDCAygDROip4298OcXKd2P13TpJP7qc18Tq5T+/S53UF3/208WQ1ABiADiAwgMoCMToo2zc1h5p7Ampt7PG3uX/qOrAYgA5ABRAYQGUB+zKTo/U+odV25Nqvp+q6uSdrbWA1ABiADiAwgMoCMToo2ZwgnM42uyUztypszltqTZZsnDr1tvmQ1ABmADCAygMgA0jgpuvvGq67ZSNf8ZPN+3vY1T3f/bZywGoAMQAYQGUBkAEm+Pp/P7XsYMXdO0dzuoM2zlX7qc2Q1VgOQAcgAIgOIDCDlSdFP3Vsyd371yWfdPQd789TruTev1X4/VgOQAcgAIgOIDCCNk6Knud0433EXzeY0qXadzb+vE5u7uawGIAOQAUQGEBlARp8+mzsb58Td86I33d2p9R3P5X6yGoAMQAYQGUBkACmfaH3yP/S592R1zZc23x3/tn1Qc2cr3f2sGqsByABkAJEBRAaQxj1Fd8/qccr0hK6/i9p3bf7GrAYgA5ABRAYQGUDKe4rmdJ2M/f69Lnffzja3P2fzbHPnFEEbGYAMQAYQGUBGnz5727yi67PmZlBdO2Tmfva7u7lO2FMERTIAGYAMIDKANO4p2jxR5+50omvnz93ntu6+923uZ6+xGoAMQAYQGUBkAGmcFNUmGCff1fWs2Xc0d3L42/YvbZ5J/mQ1ABmADCAygMgAMrqnqPY1mydRb54vdHKduU+v/eybzxjePc3bagAyABlAZACRAWT53Wdzu18297F0XXnz1Kb3u7szymoAMgAZQGQAkQFk+d1nXXtUTtSea5t7M/vcTzp3utHm3MyeIrhMBiADkAFEBpDynqKuGUuXuQnPyXVq3jY7ql1njkkRrJIByABkAJEBZPndZ297i1ntu7r258zd4dPm83pdU7vNXUZWA5AByAAiA4gMIKN7iuZ2yPyMU4DuzsS69hTdnQs5pwjayABkADKAyADSOCl66prnzM005mYsT3PPrJ181t2pVJe5aaTVAGQAMoDIACIDyAvffbY5i9jcd7R56s7mXqCu76oxKYI2MgAZgAwgMoB8ixOt3/as2fuft/qOO6w2J2lPVgOQAcgAIgOIDCCjJ1qf2Jy6vP+coq69QHNTl7u/1a7fz5PVAGQAMoDIACIDSOOkaO4Mma7ZyN0zkU7MzWHetofnbXM8qwHIAGQAkQFEBpDGSVHN5jnPNXNzobnZyN2Tw0+8bX+X1QBkADKAyAAiA0h5UjS3z6emNveYO+Fnc8/M3f1Cc+cUbf5cVgOQAcgAIgOIDCDlSdHb3pZeszm9qemaSj2/5v3vI9t8z5rVAGQAMoDIACIDyOg5RV02z+qZ2x20+Y6w7/g2tBNzu4ysBiADkAFEBhAZQEbPKXrbnOFp8/mmzeetap9V+/va3F029xuzGoAMQAYQGUBkALl+ovXbbO7h6ZrMbD6ldXLlp647nJtKWQ1ABiADiAwgMoD8mEnR5lRh7uygp675ydvOO7r7JOCT1QBkADKAyAAiA8jopGjzObITm2+Br+na0XSiax/U3Eys9jU1VgOQAcgAIgOIDCCNk6K3zVhqXzP3JNfmida168xN0u7Ol05YDUAGIAOIDCAygCRfn8/n9j3AZVYDkAHIACIDiAwgMoDIACIDiAwgMoDIACIDiAwgMoDIACIDiAwgyT+Bj8traMnOwgAAAABJRU5ErkJggg==';
+
+document.getElementById('header-data').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+if (SCRIPT_URL) document.getElementById('script-url').value = SCRIPT_URL;
+
+function showTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if (name==='relatorio') renderRelatorio();
+}
+
+function selectDriver(nome,iniciais,avatarClass) {
+  selectedDriver=nome;
+  var av=document.getElementById('form-avatar');
+  av.textContent=iniciais; av.className='avatar '+avatarClass;
+  document.getElementById('form-nome').textContent=nome;
+  document.getElementById('form-hora').textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' — '+new Date().toLocaleDateString('pt-BR');
+  document.getElementById('step-driver').style.display='none';
+  document.getElementById('step-form').style.display='block';
+}
+
+function selectTipo(tipo) {
+  selectedTipo=tipo;
+  document.getElementById('btn-saida').className='tipo-btn'+(tipo==='saida'?' sel-saida':'');
+  document.getElementById('btn-retorno').className='tipo-btn'+(tipo==='retorno'?' sel-retorno':'');
+  document.getElementById('btn-confirmar').disabled=false;
+}
+
+function backToDrivers() {
+  selectedDriver=''; selectedTipo='';
+  document.getElementById('step-form').style.display='none';
+  document.getElementById('step-driver').style.display='block';
+  document.getElementById('btn-saida').className='tipo-btn';
+  document.getElementById('btn-retorno').className='tipo-btn';
+  document.getElementById('btn-confirmar').disabled=true;
+  document.getElementById('obs').value='';
+}
+
+function registrar() {
+  if (!selectedTipo) return;
+  var ativ=document.getElementById('atividade').value;
+  var obs=document.getElementById('obs').value;
+  var now=new Date();
+  var hora=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  var btn=document.getElementById('btn-confirmar');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Enviando...';
+  var payload={motorista:selectedDriver,tipo:selectedTipo,atividade:ativ,obs:obs};
+  localLogs.unshift({...payload,hora:hora,data:now.toLocaleDateString('pt-BR'),ts:now.toISOString(),minutos:0});
+  if (localLogs.length>200) localLogs.pop();
+  localStorage.setItem('veh_logs',JSON.stringify(localLogs));
+  function ok() {
+    document.getElementById('suc-driver').textContent=selectedDriver;
+    document.getElementById('suc-hora').textContent=hora;
+    document.getElementById('suc-ativ').textContent=ativ;
+    var badge=document.getElementById('suc-badge');
+    if (selectedTipo==='saida'){badge.textContent='Saída';badge.className='badge badge-saida';document.getElementById('suc-icon').textContent='🚗';document.getElementById('suc-title').textContent='Saída registrada!';}
+    else{badge.textContent='Retorno';badge.className='badge badge-retorno';document.getElementById('suc-icon').textContent='🏁';document.getElementById('suc-title').textContent='Retorno registrado!';}
+    document.getElementById('suc-sub').textContent=now.toLocaleDateString('pt-BR')+' às '+hora;
+    document.getElementById('step-form').style.display='none';
+    document.getElementById('step-success').style.display='block';
+    btn.disabled=false; btn.innerHTML='Confirmar ✓';
+  }
+  if (SCRIPT_URL) {
+    fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
+      .then(function(){ok();toast('✅ Registro salvo na planilha!');})
+      .catch(function(){ok();toast('⚠️ Verifique a conexão');});
+  } else {ok();toast('⚠️ Configure o script nas configurações');}
+}
+
+function novoRegistro() {
+  selectedDriver=''; selectedTipo='';
+  document.getElementById('step-success').style.display='none';
+  document.getElementById('step-driver').style.display='block';
+  document.getElementById('btn-saida').className='tipo-btn';
+  document.getElementById('btn-retorno').className='tipo-btn';
+  document.getElementById('btn-confirmar').disabled=true;
+  document.getElementById('obs').value='';
+}
+
+// ---- RELATÓRIO ----
+function setPeriodo(p, el) {
+  periodoAtual=p;
+  document.querySelectorAll('.periodo-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderRelatorio();
+}
+
+function filtrarLogs(periodo) {
+  var now=new Date(); var logs=localLogs;
+  if (periodo==='semana') {
+    var dow=now.getDay(); var diff=dow===0?6:dow-1;
+    var inicio=new Date(now); inicio.setDate(now.getDate()-diff); inicio.setHours(0,0,0,0);
+    return logs.filter(l=>new Date(l.ts)>=inicio);
+  } else if (periodo==='mes') {
+    return logs.filter(l=>{var d=new Date(l.ts); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  }
+  return logs;
+}
+
+function calcTempoTotal(logsMotorista) {
+  var saidas=logsMotorista.filter(l=>l.tipo==='saida');
+  var retornos=logsMotorista.filter(l=>l.tipo==='retorno');
+  var totalMin=0;
+  saidas.forEach(function(s) {
+    var r=retornos.find(function(r){return r.atividade===s.atividade&&new Date(r.ts)>new Date(s.ts);});
+    if (r) totalMin+=Math.round((new Date(r.ts)-new Date(s.ts))/60000);
+  });
+  if (totalMin===0) return '—';
+  var h=Math.floor(totalMin/60); var m=totalMin%60;
+  return h>0?(h+'h '+(m>0?m+'min':'')):(m+'min');
+}
+
+function renderRelatorio() {
+  var logs=filtrarLogs(periodoAtual);
+  var el=document.getElementById('rel-content');
+  if (!logs.length) {
+    el.innerHTML='<div class="empty-state">📭 Nenhum registro encontrado para este período.<br><br>Faça registros na aba 📋 Registro.</div>';
+    return;
+  }
+
+  var motoristas=['Djack Moura','Alan'];
+  var html='';
+
+  // --- POR MOTORISTA ---
+  html+='<div class="rel-section"><div class="rel-section-title">👤 Por motorista</div>';
+  motoristas.forEach(function(m) {
+    var lm=logs.filter(l=>l.motorista===m);
+    if (!lm.length) return;
+    var saidas=lm.filter(l=>l.tipo==='saida').length;
+    var retornos=lm.filter(l=>l.tipo==='retorno').length;
+    var tempo=calcTempoTotal(lm);
+    var avClass=m==='Djack Moura'?'av-d':'av-a';
+    var iniciais=m==='Djack Moura'?'DM':'AL';
+    html+='<div class="motorista-card">';
+    html+='<div class="motorista-header"><div class="avatar-sm '+avClass+'">'+iniciais+'</div><strong style="font-size:14px;">'+m+'</strong></div>';
+    html+='<div class="stat-row"><span>Total de saídas</span><strong>'+saidas+'</strong></div>';
+    html+='<div class="stat-row"><span>Retornos registrados</span><strong>'+retornos+'</strong></div>';
+    html+='<div class="stat-row"><span>Tempo total de uso</span><strong>'+tempo+'</strong></div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // --- ATIVIDADES ---
+  var ativos={};
+  logs.filter(l=>l.tipo==='saida').forEach(function(l){ativos[l.atividade]=(ativos[l.atividade]||0)+1;});
+  var ativList=Object.entries(ativos).sort((a,b)=>b[1]-a[1]);
+  var maxAtiv=ativList.length?ativList[0][1]:1;
+  if (ativList.length) {
+    html+='<div class="rel-section"><div class="rel-section-title">📦 Atividades mais frequentes</div><div class="card" style="padding:12px 16px;">';
+    ativList.forEach(function(a) {
+      var pct=Math.round((a[1]/maxAtiv)*100);
+      html+='<div class="ativ-item"><div><div style="font-size:13px;">'+a[0]+'</div><div class="ativ-bar-wrap"><div class="ativ-bar" style="width:'+pct+'%"></div></div></div><strong style="font-size:14px;color:var(--verde);">'+a[1]+'</strong></div>';
+    });
+    html+='</div></div>';
+  }
+
+  // --- DIAS DA SEMANA ---
+  var dias=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  var contDia=[0,0,0,0,0,0,0];
+  logs.filter(l=>l.tipo==='saida').forEach(function(l){
+    var d=new Date(l.ts).getDay(); var idx=d===0?6:d-1;
+    contDia[idx]++;
+  });
+  var maxDia=Math.max(...contDia,1);
+  html+='<div class="rel-section"><div class="rel-section-title">📅 Saídas por dia da semana</div><div class="card" style="padding:12px 16px;">';
+  html+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;">';
+  dias.forEach(function(d,i){
+    var pct=contDia[i]/maxDia;
+    var bg=pct===0?'var(--cinza-bg)':pct<0.4?'#C8E6C9':pct<0.7?'#81C784':'#2E7D32';
+    var cor=pct>0.4?'white':'var(--texto-sec)';
+    html+='<div><div style="font-size:10px;color:var(--texto-sec);margin-bottom:4px;">'+d+'</div>';
+    html+='<div style="background:'+bg+';color:'+cor+';border-radius:6px;padding:6px 2px;font-size:12px;font-weight:600;">'+contDia[i]+'</div></div>';
+  });
+  html+='</div></div></div>';
+
+  // --- HORÁRIOS DE PICO ---
+  var horas=new Array(24).fill(0);
+  logs.filter(l=>l.tipo==='saida').forEach(function(l){horas[new Date(l.ts).getHours()]++;});
+  var blocos=[{label:'Manhã (6-12)',range:[6,12]},{label:'Tarde (12-18)',range:[12,18]},{label:'Noite (18-22)',range:[18,22]}];
+  html+='<div class="rel-section"><div class="rel-section-title">🕐 Horários de pico</div><div class="card" style="padding:12px 16px;">';
+  blocos.forEach(function(b){
+    var total=0; for(var h=b.range[0];h<b.range[1];h++) total+=horas[h];
+    var maxH=Math.max(...horas,1);
+    var pct=Math.round((total/((b.range[1]-b.range[0])*maxH))*100);
+    html+='<div class="stat-row"><span>'+b.label+'</span><div style="display:flex;align-items:center;gap:8px;"><div style="width:60px;height:6px;background:var(--cinza-borda);border-radius:3px;"><div style="width:'+Math.min(pct,100)+'%;height:6px;background:var(--verde);border-radius:3px;"></div></div><strong>'+total+'</strong></div></div>';
+  });
+  html+='</div></div>';
+
+  el.innerHTML=html;
+}
+
+function downloadQR(nome) {
+  var src=nome==='djack'?QR_DJACK:QR_ALAN;
+  var a=document.createElement('a'); a.download='qr-veiculo-'+nome+'.png'; a.href=src; a.click();
+}
+
+function salvarConfig() {
+  var url=document.getElementById('script-url').value.trim();
+  if (!url) {document.getElementById('config-status').innerHTML='<span style="color:var(--laranja)">Cole a URL</span>';return;}
+  SCRIPT_URL=url; localStorage.setItem('veh_script_url',url);
+  document.getElementById('config-status').innerHTML='<span style="color:#aaa">Testando...</span>';
+  fetch(url,{mode:'no-cors'}).then(function(){document.getElementById('config-status').innerHTML='<span style="color:var(--verde)">✔ Conexão OK</span>';}).catch(function(){document.getElementById('config-status').innerHTML='<span style="color:var(--laranja)">⚠ Não verificado — tente registrar mesmo assim</span>';});
+}
+
+function toast(msg) {
+  var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+var params=new URLSearchParams(window.location.search);
+if (params.get('driver')==='djack') setTimeout(function(){selectDriver('Djack Moura','DM','av-d');},200);
+if (params.get('driver')==='alan') setTimeout(function(){selectDriver('Alan','AL','av-a');},200);
+</script>
+</body>
+</html>
