@@ -129,6 +129,14 @@
         <div class="avatar av-a">AL</div>
         <div><div style="font-size:15px;font-weight:500;text-align:left;">Alan</div><div style="font-size:12px;color:var(--texto-sec);">Motorista</div></div>
       </button>
+      <button class="driver-btn" onclick="showOutro()">
+        <div class="avatar" style="background:#F0EDE8;color:#6b6b68;">?</div>
+        <div><div style="font-size:15px;font-weight:500;text-align:left;">Outro motorista</div><div style="font-size:12px;color:var(--texto-sec);">Digite o nome</div></div>
+      </button>
+      <div id="outro-box" style="display:none;margin-top:4px;">
+        <input type="text" id="outro-nome" placeholder="Digite seu nome completo" style="width:100%;padding:10px 12px;border:1px solid var(--cinza-borda);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:8px;">
+        <button class="btn btn-primary" style="width:100%;" onclick="confirmarOutro()">Confirmar nome →</button>
+      </div>
     </div>
   </div>
   <div id="step-form" style="display:none;">
@@ -202,6 +210,17 @@
       <button class="btn btn-sm" style="width:100%;" onclick="downloadQR('alan')">⬇ Baixar</button>
     </div>
   </div>
+  <div class="card" style="margin-top:12px;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px;">🔗 QR Code Genérico</p>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <div class="qr-img-wrap" style="flex-shrink:0;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQIAAAECCAIAAACaLU4HAAAFc0lEQVR4nO3d0W0dNxCG0d9Bmgjcf2mGy7gpgA9hBpwhJZ/zLN1dSf5AeMDl/vh8PoE/21+3bwDukwHIAGQAkQFEBhAZQGQAkQFEBhAZQGQAkQFEBhAZQGQAkQEk+bv2bT9//nP2Pv6XX79+/+fXrHe4flftp6h9Tt89933NqTuctPNTrKwGIAOQAUQGEBlAypOiVe1/6DtOTR765ie1q692rlX7mtrv8NRv/v1/G1YDkAHIACIDiAwgBydFq1M7dk5d69SMpXaHO5/cN8s6NauZnJv1XX1lNQAZgAwgMoDIANI6KXpN33Nbp65+6rt2PmfH5J6ru6wGIAOQAUQGEBlA/qhJ0WryPJ/a19T03fN3ZTUAGYAMIDKAyADSOil6f7dJ32nMd0/mef9s6tf+bVgNQAYgA4gMIDKAHJwUvbYjZfJNZ699zeq1J+9eYzUAGYAMIDKAyACS/Ph8Prfv4YDJWURtfnL3fKFT13ptL9ApVgOQAcgAIgOIDCDlPUWvPbs0eQ5P7WeffIfajslTkk7x7jNoJAOQAcgAIgPI9T1FtX0sp+ZUfd919wSkyd9P3xvcJvc4WQ1ABiADiAwgMoC0nlN06n/xd99QVtN37vTO10zOzXaufurvVbv6DqsByABkAJEBRAaQ4afPak+N9em7+uS7z049xVZz6u9+d9ZnNQAZgAwgMoDIAPIl3n3W98TT5FNjd88pmnwT3I7abqU+VgOQAcgAIgOIDCDlc4r6nnia9P6pRDv3s7r7JODk/ZxiNQAZgAwgMoDIAHJwUrSaPA/57pnS77/L/nv8fvpmj1YDkAHIACIDiAwg5afP+p6cOnWW0eT05tTn3L3nu3Z+ir7pltUAZAAygMgAIgNI69Nnp/TtSJl8cqrvDW4716qZPFP67tOLVgOQAcgAIgOIDCDXT7Su7STZ0feG99q1avrOg5qcmzmnCL4AGYAMQAYQGUDKe4pWd8/PmTyx+e7c4/0Jz92dUc4pgiIZgAxABhAZQIbffXZ3orK6Oy2ZfAv8a/d8911sK6sByABkAJEBRAaQ4T1Fq75nu77iOUU1kycF9T37tqNv0mg1ABmADCAygMgAcnBStGPyuaTJE7Yn30rftzvo1NTutUnaDqsByABkAJEBRAaQ8onW709LVn33c3c/1d2/xY5Tn9w3p7IagAxABhAZQGQAOfjus1Xf2dS1z3n/rfS1udCO2jvm+vYd7Vx9ktUAZAAygMgAIgNI66Rocn5yymtvpa998up7/C36WA1ABiADiAwgMoC0TopO6dtt0rdDpnatU5989wSk2nc5pwgukwHIAGQAkQGkfKL15P/9XztF+f2zlSYnYDveP8PKagAyABlAZACRAeTBPUWvzZfuzmH6ztyePJHp/ZOLrAYgA5ABRAYQGUCG9xTteO29XavJGUvftOTUaUuT+vatWQ1ABiADiAwgMoCUJ0WvmXyr2s4nT063Tl297111q7ungq+sBiADkAFEBhAZQA7uKZr0/pk/pyYYk2dT73xO3wzKOUVwmQxABiADiAwgB88puvuc1N25x+SOncm3j9W8NsfbYTUAGYAMIDKAyADSeqL1+yfzfMUnp157Ruz9Z+h2WA1ABiADiAwgMoA8+O6zU2oTlbtPTk3OfCbfLDb5+6mxGoAMQAYQGUBkAPnGk6LJmU/ffqGa187u3vmcu6wGIAOQAUQGEBlAWidFr+1aeW2es5qcXPU9ydV3+tPOtWqsBiADkAFEBhAZQA5Oiu6+De3U2UGnrrWjNhs5NTt6zd07tBqADEAGEBlAZABJfnw+n9v3AJdZDUAGIAOIDCAygMgAIgOIDCAygMgAIgOIDCAygMgAIgOIDCAygCT/AmZ1xE+wepxJAAAAAElFTkSuQmCC" alt="QR Genérico" style="width:100px;height:100px;"></div>
+      <div>
+        <div style="font-size:13px;font-weight:500;margin-bottom:6px;">Para qualquer motorista</div>
+        <div style="font-size:12px;color:var(--texto-sec);margin-bottom:10px;">Ao escanear, a pessoa digita o próprio nome antes de registrar.</div>
+        <button class="btn btn-sm" onclick="downloadQR('generic')">⬇ Baixar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- CONFIG -->
@@ -232,6 +251,7 @@ var selectedDriver = '', selectedTipo = '';
 var localLogs = JSON.parse(localStorage.getItem('veh_logs') || '[]');
 var periodoAtual = 'semana';
 var QR_DJACK = 'data:image/png;base64,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';
+var QR_GENERIC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQIAAAECCAIAAACaLU4HAAAFc0lEQVR4nO3d0W0dNxCG0d9Bmgjcf2mGy7gpgA9hBpwhJZ/zLN1dSf5AeMDl/vh8PoE/21+3bwDukwHIAGQAkQFEBhAZQGQAkQFEBhAZQGQAkQFEBhAZQGQAkQEk+bv2bT9//nP2Pv6XX79+/+fXrHe4flftp6h9Tt89933NqTuctPNTrKwGIAOQAUQGEBlAypOiVe1/6DtOTR765ie1q692rlX7mtrv8NRv/v1/G1YDkAHIACIDiAwgBydFq1M7dk5d69SMpXaHO5/cN8s6NauZnJv1XX1lNQAZgAwgMoDIANI6KXpN33Nbp65+6rt2PmfH5J6ru6wGIAOQAUQGEBlA/qhJ0WryPJ/a19T03fN3ZTUAGYAMIDKAyADSOil6f7dJ32nMd0/mef9s6tf+bVgNQAYgA4gMIDKAHJwUvbYjZfJNZ699zeq1J+9eYzUAGYAMIDKAyACS/Ph8Prfv4YDJWURtfnL3fKFT13ptL9ApVgOQAcgAIgOIDCDlPUWvPbs0eQ5P7WeffIfajslTkk7x7jNoJAOQAcgAIgPI9T1FtX0sp+ZUfd919wSkyd9P3xvcJvc4WQ1ABiADiAwgMoC0nlN06n/xd99QVtN37vTO10zOzXaufurvVbv6DqsByABkAJEBRAaQ4afPak+N9em7+uS7z049xVZz6u9+d9ZnNQAZgAwgMoDIAPIl3n3W98TT5FNjd88pmnwT3I7abqU+VgOQAcgAIgOIDCDlc4r6nnia9P6pRDv3s7r7JODk/ZxiNQAZgAwgMoDIAHJwUrSaPA/57pnS77/L/nv8fvpmj1YDkAHIACIDiAwg5afP+p6cOnWW0eT05tTn3L3nu3Z+ir7pltUAZAAygMgAIgNI69Nnp/TtSJl8cqrvDW4716qZPFP67tOLVgOQAcgAIgOIDCDXT7Su7STZ0feG99q1avrOg5qcmzmnCL4AGYAMQAYQGUDKe4pWd8/PmTyx+e7c4/0Jz92dUc4pgiIZgAxABhAZQIbffXZ3orK6Oy2ZfAv8a/d8911sK6sByABkAJEBRAaQ4T1Fq75nu77iOUU1kycF9T37tqNv0mg1ABmADCAygMgAcnBStGPyuaTJE7Yn30rftzvo1NTutUnaDqsByABkAJEBRAaQ8onW709LVn33c3c/1d2/xY5Tn9w3p7IagAxABhAZQGQAOfjus1Xf2dS1z3n/rfS1udCO2jvm+vYd7Vx9ktUAZAAygMgAIgNI66Rocn5yymtvpa998up7/C36WA1ABiADiAwgMoC0TopO6dtt0rdDpnatU5989wSk2nc5pwgukwHIAGQAkQGkfKL15P/9XztF+f2zlSYnYDveP8PKagAyABlAZACRAeTBPUWvzZfuzmH6ztyePJHp/ZOLrAYgA5ABRAYQGUCG9xTteO29XavJGUvftOTUaUuT+vatWQ1ABiADiAwgMoCUJ0WvmXyr2s4nT063Tl297111q7ungq+sBiADkAFEBhAZQA7uKZr0/pk/pyYYk2dT73xO3wzKOUVwmQxABiADiAwgB88puvuc1N25x+SOncm3j9W8NsfbYTUAGYAMIDKAyADSeqL1+yfzfMUnp157Ruz9Z+h2WA1ABiADiAwgMoA8+O6zU2oTlbtPTk3OfCbfLDb5+6mxGoAMQAYQGUBkAPnGk6LJmU/ffqGa187u3vmcu6wGIAOQAUQGEBlAWidFr+1aeW2es5qcXPU9ydV3+tPOtWqsBiADkAFEBhAZQA5Oiu6+De3U2UGnrrWjNhs5NTt6zd07tBqADEAGEBlAZABJfnw+n9v3AJdZDUAGIAOIDCAygMgAIgOIDCAygMgAIgOIDCAygMgAIgOIDCAygCT/AmZ1xE+wepxJAAAAAElFTkSuQmCC';
 var QR_ALAN  = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQIAAAECCAIAAACaLU4HAAAFkklEQVR4nO3dQW7dRhBF0acgmwi8/6UZWcbPPJx0ClXVlHLO0JD4KdkXDReaza/P5xP4f/vj9g3AfTIAGYAMIDKAyAAiA4gMIDKAyAAiA4gMIDKAyAAiA4gMIDKAJH/Wvu3Xr7967+M/+f3773/9yeb9PD/9xPMOT65T+7k27/DkOptq92w1ABmADCAygMgAUp4UPdX+h36ia/JQmy/V5jlzU6CnuTvsus77/21YDUAGIAOIDCAygDROip4298OcXKd2P13TpJP7qc18Tq5T+/S53UF3/208WQ1ABiADiAwgMoCMToo2zc1h5p7Ampt7PG3uX/qOrAYgA5ABRAYQGUB+zKTo/U+odV25Nqvp+q6uSdrbWA1ABiADiAwgMoCMToo2ZwgnM42uyUztypszltqTZZsnDr1tvmQ1ABmADCAygMgA0jgpuvvGq67ZSNf8ZPN+3vY1T3f/bZywGoAMQAYQGUBkAEm+Pp/P7XsYMXdO0dzuoM2zlX7qc2Q1VgOQAcgAIgOIDCDlSdFP3Vsyd371yWfdPQd789TruTev1X4/VgOQAcgAIgOIDCCNk6Knud0433EXzeY0qXadzb+vE5u7uawGIAOQAUQGEBlARp8+mzsb58Td86I33d2p9R3P5X6yGoAMQAYQGUBkACmfaH3yP/S592R1zZc23x3/tn1Qc2cr3f2sGqsByABkAJEBRAaQxj1Fd8/qccr0hK6/i9p3bf7GrAYgA5ABRAYQGUDKe4rmdJ2M/f69Lnffzja3P2fzbHPnFEEbGYAMQAYQGUBGnz5727yi67PmZlBdO2Tmfva7u7lO2FMERTIAGYAMIDKANO4p2jxR5+50omvnz93ntu6+923uZ6+xGoAMQAYQGUBkAGmcFNUmGCff1fWs2Xc0d3L42/YvbZ5J/mQ1ABmADCAygMgAMrqnqPY1mydRb54vdHKduU+v/eybzxjePc3bagAyABlAZACRAWT53Wdzu18297F0XXnz1Kb3u7szymoAMgAZQGQAkQFk+d1nXXtUTtSea5t7M/vcTzp3utHm3MyeIrhMBiADkAFEBpDynqKuGUuXuQnPyXVq3jY7ql1njkkRrJIByABkAJEBZPndZ297i1ntu7r258zd4dPm83pdU7vNXUZWA5AByAAiA4gMIKN7iuZ2yPyMU4DuzsS69hTdnQs5pwjayABkADKAyADSOCl66prnzM005mYsT3PPrJ181t2pVJe5aaTVAGQAMoDIACIDyAvffbY5i9jcd7R56s7mXqCu76oxKYI2MgAZgAwgMoB8ixOt3/as2fuft/qOO6w2J2lPVgOQAcgAIgOIDCCjJ1qf2Jy6vP+coq69QHNTl7u/1a7fz5PVAGQAMoDIACIDSOOkaO4Mma7ZyN0zkU7MzWHetofnbXM8qwHIAGQAkQFEBpDGSVHN5jnPNXNzobnZyN2Tw0+8bX+X1QBkADKAyAAiA0h5UjS3z6emNveYO+Fnc8/M3f1Cc+cUbf5cVgOQAcgAIgOIDCDlSdHb3pZeszm9qemaSj2/5v3vI9t8z5rVAGQAMoDIACIDyOg5RV02z+qZ2x20+Y6w7/g2tBNzu4ysBiADkAFEBhAZQEbPKXrbnOFp8/mmzeetap9V+/va3F029xuzGoAMQAYQGUBkALl+ovXbbO7h6ZrMbD6ldXLlp647nJtKWQ1ABiADiAwgMoD8mEnR5lRh7uygp675ydvOO7r7JOCT1QBkADKAyAAiA8jopGjzObITm2+Br+na0XSiax/U3Eys9jU1VgOQAcgAIgOIDCCNk6K3zVhqXzP3JNfmida168xN0u7Ol05YDUAGIAOIDCAygCRfn8/n9j3AZVYDkAHIACIDiAwgMoDIACIDiAwgMoDIACIDiAwgMoDIACIDiAwgyT+Bj8traMnOwgAAAABJRU5ErkJggg==';
 
 document.getElementById('header-data').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
@@ -442,6 +462,21 @@ function toast(msg) {
   var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(function(){t.classList.remove('show');},3000);
 }
+
+function showOutro() {{
+  var box=document.getElementById('outro-box');
+  box.style.display=box.style.display==='none'?'block':'none';
+  if(box.style.display==='block') document.getElementById('outro-nome').focus();
+}}
+
+function confirmarOutro() {{
+  var nome=document.getElementById('outro-nome').value.trim();
+  if(!nome){{alert('Digite o nome!');return;}}
+  var iniciais=nome.split(' ').map(function(n){{return n[0];}}).join('').substring(0,2).toUpperCase();
+  selectDriver(nome,iniciais,'');
+  document.getElementById('form-avatar').style.background='#F0EDE8';
+  document.getElementById('form-avatar').style.color='#6b6b68';
+}}
 
 var params=new URLSearchParams(window.location.search);
 if (params.get('driver')==='djack') setTimeout(function(){selectDriver('Djack Moura','DM','av-d');},200);
